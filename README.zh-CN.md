@@ -54,7 +54,7 @@ python scripts/run_officehome.py \
 
 `--gpus 0,1,2` 可使用多张物理 GPU 分配独立任务；`--pairs A2C,C2A` 指定迁移方向；准备好源权重后可用 `--dry-run` 检查命令；`--resume` 从 epoch 边界恢复未完成的任务，已完成且配置匹配的任务自动跳过。
 
-[默认配置](configs/officehome_goal_v2.json) 为 40 个目标 epoch、batch size 64、瓶颈层及分类器学习率 0.001、骨干学习率 0.0001、5 个邻居和 5 个重要特征维度。教师参数 EMA 与预测 EMA 的动量均为 0.9，分离项和拓扑项系数均为 1.0，分离项不衰减。目标适应固定使用最终模型，不按目标域准确率挑选权重。
+训练参数见下方[默认配置](#默认配置)。目标适应固定使用最终模型，不按目标域准确率挑选权重。
 
 ## 评估与结果
 
@@ -68,18 +68,27 @@ python scripts/evaluate.py \
 
 任务目录为 `runs/target/goal_v2/seed2021/<任务>/`，保存 `last.pt`、`run.json`、`metrics.jsonl`、`stdout.log` 和 `summary.json`。学生、教师结果分别汇总，所有迁移任务齐全后才计算完整基准平均值。`--tta flip` 与 `--tta ten_crop` 是额外的学生模型推理协议。
 
-## 实现说明
+## 默认配置
 
-复现实验时，需要记录当前配置的具体选择：
+Office-Home 训练参数集中在 [configs/officehome_goal_v2.json](configs/officehome_goal_v2.json)。
 
-- 使用 ImageNet V2 初始化源模型。
-- 邻居置信度默认采用 Shannon 熵；论文公式（4）写为交叉熵形式。
-- 分离项默认 `sum`，对锚点取平均，但没有公式（5）中再除以 batch size 减一的归一化。
-- 拓扑距离使用 L2 归一化后的学生特征，只计算高置信同类别有效边，并对有效无向边取平均。
-- 节点可靠性权重不参与梯度计算。
-- 熵阈值每个 epoch 更新一次，来源是记忆库中各样本最近一次存储的教师即时预测。
+| 参数 | 默认值 |
+|---|---|
+| 源模型初始化 | torchvision `IMAGENET1K_V2` |
+| 类别数 | 65 |
+| 目标域训练 epoch / batch size | 40 / 64 |
+| 瓶颈层及分类器学习率 | 0.001 |
+| 骨干学习率倍率 | 0.1 |
+| 权重衰减 | 0.0005 |
+| 学习率策略 | 固定 |
+| 近邻数 / 重要特征维度数 | 5 / 5 |
+| 教师参数 EMA / 预测 EMA 动量 | 0.9 / 0.9 |
+| 分离项系数 / 拓扑项系数 | 1.0 / 1.0 |
+| 分离项衰减指数 | 0（不衰减） |
+| 数据加载进程数 | 4 |
+| 随机种子 | 2021 |
 
-其他熵、拓扑模式见 `goal/losses.py`。互惠近邻重加权和额外的邻居交叉熵损失属于可选扩展，当前配置均未启用。工具代码也支持 Office-31、ImageCLEF，但本版本仅附带 Office-Home 配置和列表。模块说明及 BibTeX 引用见 [英文 README](README.md)。
+模块说明及 BibTeX 引用见 [英文 README](README.md)。
 
 ## 许可证
 

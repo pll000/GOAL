@@ -70,18 +70,7 @@ python scripts/run_officehome.py \
 
 Use `--gpus 0,1,2` to distribute independent tasks across physical GPUs. Use `--pairs A2C,C2A` for selected transfers, `--dry-run` to inspect planned commands after preparing source checkpoints, and `--resume` to recover unfinished runs from epoch-boundary checkpoints. Completed matching runs are skipped.
 
-The [default configuration](configs/officehome_goal_v2.json) uses:
-
-| Setting | Value |
-|---|---|
-| Target epochs / batch size | 40 / 64 |
-| Bottleneck and classifier learning rate | 0.001 |
-| Backbone learning-rate multiplier | 0.1 |
-| Nearest neighbors / top feature dimensions | 5 / 5 |
-| Teacher parameter EMA / prediction EMA | 0.9 / 0.9 |
-| Separation coefficient / topology coefficient | 1.0 / 1.0 |
-| Separation decay exponent | 0 (constant) |
-| Random seed | 2021 |
+See [Default configuration](#default-configuration) for the training parameters.
 
 The student is updated by gradient descent; teacher parameters and floating-point buffers are updated by EMA. The memory bank stores target features and smoothed predictions. Adaptation uses the final checkpoint rather than selecting a checkpoint by target accuracy.
 
@@ -104,21 +93,25 @@ python scripts/evaluate.py \
 
 Student and teacher results are reported separately. A full benchmark average is reported only when every transfer task is available. Optional inference-time augmentation is exposed by `evaluate.py --tta flip` and `--tta ten_crop` for student checkpoints; these are separate evaluation protocols.
 
-## Implementation choices
+## Default configuration
 
-The current preset makes the following choices explicit. Account for them when comparing results with the paper or another implementation:
+The Office-Home training parameters are defined in [configs/officehome_goal_v2.json](configs/officehome_goal_v2.json).
 
-| Component | Current preset |
+| Setting | Value |
 |---|---|
 | Source initialization | torchvision `IMAGENET1K_V2` |
-| Neighbor confidence | Shannon entropy of the memory-bank prediction; Eq. (4) is written as a cross-entropy expression |
-| Separation reduction | `sum`: average over anchors, without Eq. (5)'s additional division by batch size minus one |
-| Topology features | L2-normalized before computing distances |
-| Topology mask / reduction | Valid confident same-class edges only; mean over valid undirected edges |
-| Node reliability | Detached from the gradient computation |
-| Entropy threshold | Once per epoch, from the latest stored instantaneous teacher prediction for each sample |
-
-Alternative entropy and topology modes are implemented in `goal/losses.py`. Reciprocal-neighbor reweighting and an additional neighbor cross-entropy loss are optional extensions and are disabled in the shipped preset. Utilities also contain Office-31 and ImageCLEF support, but this release only includes an Office-Home configuration and image lists.
+| Classes | 65 |
+| Target epochs / batch size | 40 / 64 |
+| Bottleneck and classifier learning rate | 0.001 |
+| Backbone learning-rate multiplier | 0.1 |
+| Weight decay | 0.0005 |
+| Learning-rate schedule | Constant |
+| Nearest neighbors / top feature dimensions | 5 / 5 |
+| Teacher parameter EMA / prediction EMA | 0.9 / 0.9 |
+| Separation coefficient / topology coefficient | 1.0 / 1.0 |
+| Separation decay exponent | 0 (constant) |
+| Data-loader workers | 4 |
+| Random seed | 2021 |
 
 ## Code map
 
