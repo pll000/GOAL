@@ -8,8 +8,6 @@
 
 GOAL 只使用无标签目标域图片，将源域训练好的分类器适应到目标域。方法结合 Mean Teacher、全局一致性自维持（GCSS）和局部拓扑继承（LTI）。
 
-当前版本提供 **Office-Home + ImageNet V2** 配置，不包含数据集图片、训练好的模型或已完成的实验记录。论文中的 Office-Home 平均准确率为 74.1%，这是论文参考结果，并非当前发布版本已经验证的运行结果。
-
 ## 环境
 
 使用 Linux，或已配置 NVIDIA GPU 的 WSL2。批量调度脚本依赖 Unix 文件锁和进程接口，不支持原生 Windows。建议 Python 3.10；NVIDIA 驱动需兼容固定依赖中的 CUDA 11.7。所有命令均在仓库根目录执行：
@@ -54,7 +52,7 @@ python scripts/run_officehome.py \
 
 `--gpus 0,1,2` 可使用多张物理 GPU 分配独立任务；`--pairs A2C,C2A` 指定迁移方向；准备好源权重后可用 `--dry-run` 检查命令；`--resume` 从 epoch 边界恢复未完成的任务，已完成且配置匹配的任务自动跳过。
 
-训练参数见下方[默认配置](#默认配置)。目标适应固定使用最终模型，不按目标域准确率挑选权重。
+目标适应固定使用最终模型，不按目标域准确率挑选权重。
 
 ## 评估与结果
 
@@ -67,26 +65,6 @@ python scripts/evaluate.py \
 ```
 
 任务目录为 `runs/target/goal_v2/seed2021/<任务>/`，保存 `last.pt`、`run.json`、`metrics.jsonl`、`stdout.log` 和 `summary.json`。学生、教师结果分别汇总，所有迁移任务齐全后才计算完整基准平均值。`--tta flip` 与 `--tta ten_crop` 是额外的学生模型推理协议。
-
-## 默认配置
-
-Office-Home 训练参数集中在 [configs/officehome_goal_v2.json](configs/officehome_goal_v2.json)。
-
-| 参数 | 默认值 |
-|---|---|
-| 源模型初始化 | torchvision `IMAGENET1K_V2` |
-| 类别数 | 65 |
-| 目标域训练 epoch / batch size | 40 / 64 |
-| 瓶颈层及分类器学习率 | 0.001 |
-| 骨干学习率倍率 | 0.1 |
-| 权重衰减 | 0.0005 |
-| 学习率策略 | 固定 |
-| 近邻数 / 重要特征维度数 | 5 / 5 |
-| 教师参数 EMA / 预测 EMA 动量 | 0.9 / 0.9 |
-| 分离项系数 / 拓扑项系数 | 1.0 / 1.0 |
-| 分离项衰减指数 | 0（不衰减） |
-| 数据加载进程数 | 4 |
-| 随机种子 | 2021 |
 
 模块说明及 BibTeX 引用见 [英文 README](README.md)。
 

@@ -8,8 +8,6 @@ PyTorch training code for **Global self-sustaining and local inheritance for sou
 
 GOAL adapts a source-trained classifier using only unlabeled target-domain images. It combines a mean teacher, Global Consistency Self-Sustaining (GCSS), and Local Topology Inheritance (LTI).
 
-This release provides an **Office-Home / ImageNet V2** preset. Dataset images, trained checkpoints, and completed experiment runs are not included. The paper reports 74.1% average accuracy on Office-Home; that number is a paper reference, not a verified result of this release.
-
 ## Requirements
 
 - Linux, or a suitably configured WSL2 environment with NVIDIA GPU support. The batch scheduler uses Unix process and file-locking interfaces; native Windows is not supported by that scheduler.
@@ -70,8 +68,6 @@ python scripts/run_officehome.py \
 
 Use `--gpus 0,1,2` to distribute independent tasks across physical GPUs. Use `--pairs A2C,C2A` for selected transfers, `--dry-run` to inspect planned commands after preparing source checkpoints, and `--resume` to recover unfinished runs from epoch-boundary checkpoints. Completed matching runs are skipped.
 
-See [Default configuration](#default-configuration) for the training parameters.
-
 The student is updated by gradient descent; teacher parameters and floating-point buffers are updated by EMA. The memory bank stores target features and smoothed predictions. Adaptation uses the final checkpoint rather than selecting a checkpoint by target accuracy.
 
 ## Evaluate and summarize
@@ -92,26 +88,6 @@ python scripts/evaluate.py \
 ```
 
 Student and teacher results are reported separately. A full benchmark average is reported only when every transfer task is available. Optional inference-time augmentation is exposed by `evaluate.py --tta flip` and `--tta ten_crop` for student checkpoints; these are separate evaluation protocols.
-
-## Default configuration
-
-The Office-Home training parameters are defined in [configs/officehome_goal_v2.json](configs/officehome_goal_v2.json).
-
-| Setting | Value |
-|---|---|
-| Source initialization | torchvision `IMAGENET1K_V2` |
-| Classes | 65 |
-| Target epochs / batch size | 40 / 64 |
-| Bottleneck and classifier learning rate | 0.001 |
-| Backbone learning-rate multiplier | 0.1 |
-| Weight decay | 0.0005 |
-| Learning-rate schedule | Constant |
-| Nearest neighbors / top feature dimensions | 5 / 5 |
-| Teacher parameter EMA / prediction EMA | 0.9 / 0.9 |
-| Separation coefficient / topology coefficient | 1.0 / 1.0 |
-| Separation decay exponent | 0 (constant) |
-| Data-loader workers | 4 |
-| Random seed | 2021 |
 
 ## Code map
 
