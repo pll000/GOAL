@@ -1,0 +1,32 @@
+.venv*/
+venv/
+__pycache__/
+*.py[cod]
+cache/
+runs/
+
+# Generated dataset manifests contain machine-specific absolute paths.
+data/**/manifest.json
+
+# Local credentials and editor settings.
+.env
+.env.*
+!.env.example
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Dataset images, model weights, and generated experiment artifacts.
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.tif
+*.tiff
+*.webp
+*.pt
+*.pth
+*.log
+*.jsonl
+*.zip

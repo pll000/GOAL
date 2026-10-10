@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the GOAL paper below."
+type: software
+title: "GOAL: Global Self-Sustaining and Local Inheritance"
+version: 0.1.0
+license: MIT
+authors:
+  - family-names: Peng
+    given-names: Lin
+preferred-citation:
+  type: article
+  title: "Global self-sustaining and local inheritance for source-free unsupervised domain adaptation"
+  authors:
+    - family-names: Peng
+      given-names: Lin
+    - family-names: He
+      given-names: Yuhang
+    - family-names: Wang
+      given-names: Shaokun
+    - family-names: Song
+      given-names: Xiang
+    - family-names: Dong
+      given-names: Songlin
+    - family-names: Wei
+      given-names: Xing
+    - family-names: Gong
+      given-names: Yihong
+  journal: Pattern Recognition
+  volume: "155"
+  year: 2024
+  start: "110679"
+  doi: 10.1016/j.patcog.2024.110679
